@@ -67,6 +67,20 @@ struct Opt {
     values: PathBuf,
 }
 
+fn write_text<W: Write>(
+    w: &mut EventWriter<W>,
+    text: &str,
+    dic: &HashMap<String, String>,
+) -> Result<()> {
+    let mut t = text.to_owned();
+    for (k, v) in dic {
+        t = t.replace(&format!("{{{}}}", k), v);
+    }
+    let cs: XmlEvent = XmlEvent::characters(&t).into();
+    w.write(cs)?;
+    Ok(())
+}
+
 fn write_te<W: Write>(
     w: &mut EventWriter<W>,
     te: &TextElement,
@@ -80,22 +94,10 @@ fn write_te<W: Write>(
     match &te.text {
         Text::Multi(vecstr) => {
             for text in vecstr {
-                let mut t = text.clone();
-                for (k, v) in dic {
-                    t = t.replace(&format!("{{{}}}", k), v);
-                }
-                let cs: XmlEvent = XmlEvent::characters(&text).into();
-                w.write(cs)?;
+                write_text(w, text, dic)?
             }
         }
-        Text::Single(text) => {
-            let mut t = text.clone();
-            for (k, v) in dic {
-                t = t.replace(&format!("{{{}}}", k), v);
-            }
-            let cs: XmlEvent = XmlEvent::characters(&text).into();
-            w.write(cs)?;
-        }
+        Text::Single(text) => write_text(w, text, dic)?,
     }
     let end: XmlEvent = XmlEvent::end_element().into();
     w.write(end)?;
