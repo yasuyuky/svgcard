@@ -55,7 +55,6 @@ enum Text {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "lowercase")]
-// #[serde(tag = "align")]
 enum Align {
     Left,
     Right,
