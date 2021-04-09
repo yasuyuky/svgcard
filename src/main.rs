@@ -124,8 +124,7 @@ fn main() -> Result<()> {
     let mut writer = EmitterConfig::new()
         .perform_indent(true)
         .create_writer(stdout);
-    for (key, te) in template.texts {
-        println!("{}", key);
+    for (_, te) in template.texts {
         write_te(&mut writer, &te, &dic)?;
     }
     Ok(())
