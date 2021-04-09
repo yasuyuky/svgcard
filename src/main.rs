@@ -117,13 +117,13 @@ fn load_values(path: &Path) -> Result<HashMap<String, String>> {
 }
 
 fn main() -> Result<()> {
-    let mut file = File::create("output.svg").unwrap();
+    let stdout = std::io::stdout();
     let opt = Opt::from_args();
     let template = CardTemplate::from_path(&opt.template)?;
     let dic = load_values(&opt.values)?;
     let mut writer = EmitterConfig::new()
         .perform_indent(true)
-        .create_writer(&mut file);
+        .create_writer(stdout);
     for (key, te) in template.texts {
         println!("{}", key);
         write_te(&mut writer, &te, &dic)?;
