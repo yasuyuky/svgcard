@@ -86,8 +86,13 @@ fn write_te<W: Write>(
     te: &TextElement,
     dic: &HashMap<String, String>,
 ) -> Result<()> {
+    let (x, y) = te.pos;
+    let x = &format!("{}", x);
+    let y = &format!("{}", y);
     let start: XmlEvent = XmlEvent::start_element("text")
         .attr("class", &te.fontset)
+        .attr("x", x)
+        .attr("y", y)
         .into();
     w.write(start)?;
 
