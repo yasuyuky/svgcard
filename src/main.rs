@@ -123,7 +123,9 @@ fn write_svg<W: Write>(
     template: &CardTemplate,
     dic: &HashMap<String, String>,
 ) -> Result<()> {
-    let svg_start: XmlEvent = XmlEvent::start_element("svg").into();
+    let svg_start: XmlEvent = XmlEvent::start_element("svg")
+        .default_ns("http://www.w3.org/2000/svg")
+        .into();
     writer.write(svg_start)?;
     for (_, te) in &template.texts {
         write_te(writer, &te, &dic)?;
