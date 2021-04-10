@@ -89,10 +89,12 @@ fn write_te<W: Write>(
     let (x, y) = te.pos;
     let x = &format!("{}", x);
     let y = &format!("{}", y);
+    let fontsize = &format!("{}", te.fontsize);
     let start: XmlEvent = XmlEvent::start_element("text")
         .attr("class", &te.fontset)
         .attr("x", x)
         .attr("y", y)
+        .attr("font-size", fontsize)
         .into();
     w.write(start)?;
 
