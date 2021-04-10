@@ -112,6 +112,20 @@ fn load_values(path: &Path) -> Result<HashMap<String, String>> {
     Ok(toml::from_str::<HashMap<String, String>>(&buf)?)
 }
 
+fn write_style<W: Write>(writer: &mut EventWriter<W>, template: &CardTemplate) -> Result<()> {
+    let start: XmlEvent = XmlEvent::start_element("style").into();
+    writer.write(start)?;
+    for (key, fonts) in &template.fontset {
+        let fonts = fonts.join(",");
+        let s = format!(".{} {{ font-family: {}; }}\n", key, fonts);
+        let cs: XmlEvent = XmlEvent::characters(&s).into();
+        writer.write(cs)?;
+    }
+    let end: XmlEvent = XmlEvent::end_element().into();
+    writer.write(end)?;
+    Ok(())
+}
+
 fn write_svg<W: Write>(
     writer: &mut EventWriter<W>,
     template: &CardTemplate,
@@ -121,6 +135,7 @@ fn write_svg<W: Write>(
         .default_ns("http://www.w3.org/2000/svg")
         .into();
     writer.write(svg_start)?;
+    write_style(writer, template)?;
     for (_, te) in &template.texts {
         write_te(writer, &te, &dic)?;
     }
