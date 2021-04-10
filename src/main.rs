@@ -116,6 +116,21 @@ fn load_values(path: &Path) -> Result<HashMap<String, String>> {
     Ok(toml::from_str::<HashMap<String, String>>(&buf)?)
 }
 
+fn write_svg<W: Write>(
+    writer: &mut EventWriter<W>,
+    template: &CardTemplate,
+    dic: &HashMap<String, String>,
+) -> Result<()> {
+    let svg_start: XmlEvent = XmlEvent::start_element("svg").into();
+    writer.write(svg_start)?;
+    for (_, te) in &template.texts {
+        write_te(writer, &te, &dic)?;
+    }
+    let svg_end: XmlEvent = XmlEvent::end_element().into();
+    writer.write(svg_end)?;
+    Ok(())
+}
+
 fn main() -> Result<()> {
     let stdout = std::io::stdout();
     let opt = Opt::from_args();
@@ -124,12 +139,5 @@ fn main() -> Result<()> {
     let mut writer = EmitterConfig::new()
         .perform_indent(true)
         .create_writer(stdout);
-    let svg_start: XmlEvent = XmlEvent::start_element("svg").into();
-    writer.write(svg_start)?;
-    for (_, te) in template.texts {
-        write_te(&mut writer, &te, &dic)?;
-    }
-    let svg_end: XmlEvent = XmlEvent::end_element().into();
-    writer.write(svg_end)?;
-    Ok(())
+    write_svg(&mut writer, &template, &dic)
 }
