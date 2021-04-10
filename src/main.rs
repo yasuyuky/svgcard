@@ -11,6 +11,7 @@ use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
 struct CardTemplate {
     dimension: Dimension,
     fontset: HashMap<String, Vec<String>>,
+    imports: Option<Vec<String>>,
     texts: HashMap<String, TextElement>,
 }
 
@@ -115,6 +116,11 @@ fn load_values(path: &Path) -> Result<HashMap<String, String>> {
 fn write_style<W: Write>(writer: &mut EventWriter<W>, template: &CardTemplate) -> Result<()> {
     let start: XmlEvent = XmlEvent::start_element("style").into();
     writer.write(start)?;
+    for url in &template.imports.clone().unwrap_or_default() {
+        let s = format!("@import url({});\n", url);
+        let cs: XmlEvent = XmlEvent::characters(&s).into();
+        writer.write(cs)?;
+    }
     for (key, fonts) in &template.fontset {
         let fonts = fonts.join(",");
         let s = format!(".{} {{ font-family: {}; }}\n", key, fonts);
