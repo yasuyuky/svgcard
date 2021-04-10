@@ -10,7 +10,7 @@ use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
 #[derive(Deserialize, Debug)]
 struct CardTemplate {
     dimension: Dimension,
-    fontset: FontSet,
+    fontset: HashMap<String, Vec<String>>,
     texts: HashMap<String, TextElement>,
 }
 
@@ -28,12 +28,6 @@ struct Dimension {
     width: usize,
     height: usize,
     bezel: usize,
-}
-
-#[derive(Deserialize, Debug)]
-struct FontSet {
-    normal: Vec<String>,
-    logo: Vec<String>,
 }
 
 #[derive(Deserialize, Debug)]
