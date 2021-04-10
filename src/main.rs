@@ -117,7 +117,7 @@ fn write_style<W: Write>(writer: &mut EventWriter<W>, template: &CardTemplate) -
     let start: XmlEvent = XmlEvent::start_element("style").into();
     writer.write(start)?;
     for url in &template.imports.clone().unwrap_or_default() {
-        let s = format!("@import url({});\n", url);
+        let s = format!("@import url('{}');\n", url);
         let cs: XmlEvent = XmlEvent::characters(&s).into();
         writer.write(cs)?;
     }
