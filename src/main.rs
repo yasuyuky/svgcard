@@ -124,8 +124,12 @@ fn main() -> Result<()> {
     let mut writer = EmitterConfig::new()
         .perform_indent(true)
         .create_writer(stdout);
+    let svg_start: XmlEvent = XmlEvent::start_element("svg").into();
+    writer.write(svg_start)?;
     for (_, te) in template.texts {
         write_te(&mut writer, &te, &dic)?;
     }
+    let svg_end: XmlEvent = XmlEvent::end_element().into();
+    writer.write(svg_end)?;
     Ok(())
 }
