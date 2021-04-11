@@ -99,6 +99,12 @@ fn write_text<W: Write>(
     Ok(())
 }
 
+fn write_text_end<W: Write>(w: &mut EventWriter<W>) -> Result<()> {
+    let end: XmlEvent = XmlEvent::end_element().into();
+    w.write(end)?;
+    Ok(())
+}
+
 fn write_te<W: Write>(
     w: &mut EventWriter<W>,
     te: &TextElement,
@@ -114,9 +120,7 @@ fn write_te<W: Write>(
         }
         Text::Single(text) => write_text(w, text, dic)?,
     }
-    let end: XmlEvent = XmlEvent::end_element().into();
-    w.write(end)?;
-    Ok(())
+    write_text_end(w)
 }
 
 fn load_values(path: &Path) -> Result<HashMap<String, String>> {
