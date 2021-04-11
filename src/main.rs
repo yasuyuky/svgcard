@@ -110,12 +110,15 @@ fn write_te<W: Write>(
     te: &TextElement,
     dic: &HashMap<String, String>,
 ) -> Result<()> {
-    let (x, y) = te.pos;
+    let (x, mut y) = te.pos;
     write_text_start(w, &te.fontset, x, y, te.fontsize)?;
     match &te.text {
         Text::Multi(vecstr) => {
             for text in vecstr {
-                write_text(w, text, dic)?
+                write_text(w, text, dic)?;
+                write_text_end(w)?;
+                y = y + te.fontsize.ceil() as usize;
+                write_text_start(w, &te.fontset, x, y, te.fontsize)?;
             }
         }
         Text::Single(text) => write_text(w, text, dic)?,
