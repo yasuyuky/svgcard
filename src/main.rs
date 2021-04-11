@@ -24,7 +24,7 @@ impl CardTemplate {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 struct Dimension {
     width: usize,
     height: usize,
@@ -137,8 +137,11 @@ fn write_svg<W: Write>(
     template: &CardTemplate,
     dic: &HashMap<String, String>,
 ) -> Result<()> {
+    let dim = template.dimension.clone();
+    let vb = format!("0 0 {} {}", dim.width, dim.height);
     let svg_start: XmlEvent = XmlEvent::start_element("svg")
         .default_ns("http://www.w3.org/2000/svg")
+        .attr("viewBox", &vb)
         .into();
     writer.write(svg_start)?;
     write_style(writer, template)?;
