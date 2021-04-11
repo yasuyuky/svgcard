@@ -63,6 +63,25 @@ struct Opt {
     values: PathBuf,
 }
 
+fn write_text_start<W: Write>(
+    w: &mut EventWriter<W>,
+    class: &str,
+    x: usize,
+    y: usize,
+    fontsize: f64,
+) -> Result<()> {
+    let (x, y) = (format!("{}", x), format!("{}", y));
+    let fontsize = format!("{}", fontsize);
+    let start: XmlEvent = XmlEvent::start_element("text")
+        .attr("class", class)
+        .attr("x", &x)
+        .attr("y", &y)
+        .attr("font-size", &fontsize)
+        .into();
+    w.write(start)?;
+    Ok(())
+}
+
 fn write_text<W: Write>(
     w: &mut EventWriter<W>,
     text: &str,
@@ -86,17 +105,7 @@ fn write_te<W: Write>(
     dic: &HashMap<String, String>,
 ) -> Result<()> {
     let (x, y) = te.pos;
-    let x = &format!("{}", x);
-    let y = &format!("{}", y);
-    let fontsize = &format!("{}", te.fontsize);
-    let start: XmlEvent = XmlEvent::start_element("text")
-        .attr("class", &te.fontset)
-        .attr("x", x)
-        .attr("y", y)
-        .attr("font-size", fontsize)
-        .into();
-    w.write(start)?;
-
+    write_text_start(w, &te.fontset, x, y, te.fontsize)?;
     match &te.text {
         Text::Multi(vecstr) => {
             for text in vecstr {
