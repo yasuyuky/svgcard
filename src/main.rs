@@ -1,4 +1,5 @@
 use anyhow::Result;
+use regex::Regex;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs::File;
@@ -68,8 +69,11 @@ fn write_text<W: Write>(
     dic: &HashMap<String, String>,
 ) -> Result<()> {
     let mut t = text.to_owned();
-    for (k, v) in dic {
-        t = t.replace(&format!("{{{}}}", k), v);
+    let re = Regex::new(r"\{(\w+)\}")?;
+    for cap in re.captures_iter(text) {
+        let k = cap[1].to_owned();
+        let v = dic.get(&k).map(String::from).unwrap_or_default();
+        t = t.replace(&format!("{{{}}}", k), &v);
     }
     let cs: XmlEvent = XmlEvent::characters(&t).into();
     w.write(cs)?;
