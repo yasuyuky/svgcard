@@ -12,6 +12,7 @@ use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
 struct CardTemplate {
     dimension: Dimension,
     fontset: HashMap<String, Vec<String>>,
+    fontweight: Option<HashMap<String, usize>>,
     imports: Option<Vec<String>>,
     texts: HashMap<String, TextElement>,
 }
@@ -144,6 +145,11 @@ fn write_style<W: Write>(writer: &mut EventWriter<W>, template: &CardTemplate) -
     for (key, fonts) in &template.fontset {
         let fonts = fonts.join(",");
         let s = format!(".{} {{ font-family: {}; }}\n", key, fonts);
+        let cs: XmlEvent = XmlEvent::characters(&s).into();
+        writer.write(cs)?;
+    }
+    for (key, weight) in &template.fontweight.clone().unwrap_or_default() {
+        let s = format!(".{} {{ font-weight: {}; }}\n", key, weight);
         let cs: XmlEvent = XmlEvent::characters(&s).into();
         writer.write(cs)?;
     }
