@@ -1,5 +1,4 @@
 use anyhow::Result;
-use regex::Regex;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs::File;
@@ -8,13 +7,15 @@ use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
 
+mod text;
+
 #[derive(Deserialize, Debug)]
 struct CardTemplate {
     dimension: Dimension,
     fontset: HashMap<String, Vec<String>>,
     fontweight: Option<HashMap<String, usize>>,
     imports: Option<Vec<String>>,
-    texts: HashMap<String, TextElement>,
+    texts: HashMap<String, text::TextElement>,
 }
 
 impl CardTemplate {
@@ -33,98 +34,11 @@ struct Dimension {
     bezel: usize,
 }
 
-#[derive(Deserialize, Debug)]
-struct TextElement {
-    text: Text,
-    fontset: String,
-    fontsize: f64,
-    align: Option<Align>,
-    pos: (usize, usize),
-    space: Option<(f64, f64)>,
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(untagged)]
-enum Text {
-    Multi(Vec<String>),
-    Single(String),
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "lowercase")]
-enum Align {
-    Left,
-    Right,
-}
-
 #[derive(Debug, StructOpt)]
 #[structopt(rename_all = "kebab-case")]
 struct Opt {
     template: PathBuf,
     values: PathBuf,
-}
-
-fn write_text_start<W: Write>(
-    w: &mut EventWriter<W>,
-    class: &str,
-    x: usize,
-    y: usize,
-    fontsize: f64,
-) -> Result<()> {
-    let (x, y) = (format!("{}", x), format!("{}", y));
-    let fontsize = format!("{}", fontsize);
-    let start: XmlEvent = XmlEvent::start_element("text")
-        .attr("class", class)
-        .attr("x", &x)
-        .attr("y", &y)
-        .attr("font-size", &fontsize)
-        .into();
-    w.write(start)?;
-    Ok(())
-}
-
-fn write_text_characters<W: Write>(
-    w: &mut EventWriter<W>,
-    text: &str,
-    dic: &HashMap<String, String>,
-) -> Result<()> {
-    let mut t = text.to_owned();
-    let re = Regex::new(r"\{(\w+)\}")?;
-    for cap in re.captures_iter(text) {
-        let k = cap[1].to_owned();
-        let v = dic.get(&k).map(String::from).unwrap_or_default();
-        t = t.replace(&format!("{{{}}}", k), &v);
-    }
-    let cs: XmlEvent = XmlEvent::characters(&t).into();
-    w.write(cs)?;
-    Ok(())
-}
-
-fn write_text_end<W: Write>(w: &mut EventWriter<W>) -> Result<()> {
-    let end: XmlEvent = XmlEvent::end_element().into();
-    w.write(end)?;
-    Ok(())
-}
-
-fn write_te<W: Write>(
-    w: &mut EventWriter<W>,
-    te: &TextElement,
-    dic: &HashMap<String, String>,
-) -> Result<()> {
-    let (x, mut y) = te.pos;
-    write_text_start(w, &te.fontset, x, y, te.fontsize)?;
-    match &te.text {
-        Text::Multi(vecstr) => {
-            for text in vecstr {
-                write_text_characters(w, text, dic)?;
-                write_text_end(w)?;
-                y = y + te.fontsize.ceil() as usize;
-                write_text_start(w, &te.fontset, x, y, te.fontsize)?;
-            }
-        }
-        Text::Single(text) => write_text_characters(w, text, dic)?,
-    }
-    write_text_end(w)
 }
 
 fn load_values(path: &Path) -> Result<HashMap<String, String>> {
@@ -175,7 +89,7 @@ fn write_svg<W: Write>(
     writer.write(svg_start)?;
     write_style(writer, template)?;
     for (_, te) in &template.texts {
-        write_te(writer, &te, &dic)?;
+        text::write_te(writer, &te, &dic)?;
     }
     let svg_end: XmlEvent = XmlEvent::end_element().into();
     writer.write(svg_end)?;
