@@ -83,7 +83,7 @@ fn write_text_start<W: Write>(
     Ok(())
 }
 
-fn write_text<W: Write>(
+fn write_text_characters<W: Write>(
     w: &mut EventWriter<W>,
     text: &str,
     dic: &HashMap<String, String>,
@@ -116,13 +116,13 @@ fn write_te<W: Write>(
     match &te.text {
         Text::Multi(vecstr) => {
             for text in vecstr {
-                write_text(w, text, dic)?;
+                write_text_characters(w, text, dic)?;
                 write_text_end(w)?;
                 y = y + te.fontsize.ceil() as usize;
                 write_text_start(w, &te.fontset, x, y, te.fontsize)?;
             }
         }
-        Text::Single(text) => write_text(w, text, dic)?,
+        Text::Single(text) => write_text_characters(w, text, dic)?,
     }
     write_text_end(w)
 }
