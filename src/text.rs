@@ -71,7 +71,7 @@ fn write_text_end<W: Write>(w: &mut EventWriter<W>) -> Result<()> {
     Ok(())
 }
 
-pub fn write_te<W: Write>(
+pub fn write_text_element<W: Write>(
     w: &mut EventWriter<W>,
     te: &TextElement,
     dic: &HashMap<String, String>,

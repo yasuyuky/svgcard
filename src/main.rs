@@ -89,7 +89,7 @@ fn write_svg<W: Write>(
     writer.write(svg_start)?;
     write_style(writer, template)?;
     for (_, te) in &template.texts {
-        text::write_te(writer, &te, &dic)?;
+        text::write_text_element(writer, &te, &dic)?;
     }
     let svg_end: XmlEvent = XmlEvent::end_element().into();
     writer.write(svg_end)?;
