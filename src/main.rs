@@ -7,10 +7,11 @@ use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
 
+mod style;
 mod text;
 
 #[derive(Deserialize, Debug)]
-struct CardTemplate {
+pub struct CardTemplate {
     dimension: Dimension,
     fontset: HashMap<String, Vec<String>>,
     fontweight: Option<HashMap<String, usize>>,
@@ -48,30 +49,6 @@ fn load_values(path: &Path) -> Result<HashMap<String, String>> {
     Ok(toml::from_str::<HashMap<String, String>>(&buf)?)
 }
 
-fn write_style<W: Write>(writer: &mut EventWriter<W>, template: &CardTemplate) -> Result<()> {
-    let start: XmlEvent = XmlEvent::start_element("style").into();
-    writer.write(start)?;
-    for url in &template.imports.clone().unwrap_or_default() {
-        let s = format!("@import url('{}');\n", url);
-        let cs: XmlEvent = XmlEvent::characters(&s).into();
-        writer.write(cs)?;
-    }
-    for (key, fonts) in &template.fontset {
-        let fonts = fonts.join(",");
-        let s = format!(".{} {{ font-family: {}; }}\n", key, fonts);
-        let cs: XmlEvent = XmlEvent::characters(&s).into();
-        writer.write(cs)?;
-    }
-    for (key, weight) in &template.fontweight.clone().unwrap_or_default() {
-        let s = format!(".{} {{ font-weight: {}; }}\n", key, weight);
-        let cs: XmlEvent = XmlEvent::characters(&s).into();
-        writer.write(cs)?;
-    }
-    let end: XmlEvent = XmlEvent::end_element().into();
-    writer.write(end)?;
-    Ok(())
-}
-
 fn write_svg<W: Write>(
     writer: &mut EventWriter<W>,
     template: &CardTemplate,
@@ -87,7 +64,7 @@ fn write_svg<W: Write>(
         .attr("height", &hs)
         .into();
     writer.write(svg_start)?;
-    write_style(writer, template)?;
+    style::write_style(writer, template)?;
     for (_, te) in &template.texts {
         text::write_text_element(writer, &te, &dic)?;
     }
