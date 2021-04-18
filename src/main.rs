@@ -49,6 +49,12 @@ fn load_values(path: &Path) -> Result<HashMap<String, String>> {
     Ok(toml::from_str::<HashMap<String, String>>(&buf)?)
 }
 
+pub fn comment<W: Write>(writer: &mut EventWriter<W>, s: &str) -> Result<()> {
+    let comment: XmlEvent = XmlEvent::comment(s);
+    writer.write(comment)?;
+    Ok(())
+}
+
 fn write_svg<W: Write>(
     writer: &mut EventWriter<W>,
     template: &CardTemplate,
