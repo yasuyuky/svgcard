@@ -7,6 +7,7 @@ use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
 
+mod import;
 mod style;
 mod text;
 
@@ -17,6 +18,7 @@ pub struct CardTemplate {
     fontweight: Option<HashMap<String, usize>>,
     imports: Option<Vec<String>>,
     texts: HashMap<String, text::TextElement>,
+    svgs: Option<HashMap<String, SvgElement>>,
 }
 
 impl CardTemplate {
@@ -26,6 +28,13 @@ impl CardTemplate {
         file.read_to_string(&mut buf)?;
         Ok(toml::from_str::<CardTemplate>(&buf)?)
     }
+}
+
+#[derive(Clone, Deserialize, Debug)]
+pub struct SvgElement {
+    path: PathBuf,
+    scale: f64,
+    pos: (usize, usize),
 }
 
 #[derive(Clone, Deserialize, Debug)]
@@ -57,6 +66,7 @@ pub fn comment<W: Write>(writer: &mut EventWriter<W>, s: &str) -> Result<()> {
 
 fn write_svg<W: Write>(
     writer: &mut EventWriter<W>,
+    path: &Path,
     template: &CardTemplate,
     dic: &HashMap<String, String>,
 ) -> Result<()> {
@@ -74,6 +84,13 @@ fn write_svg<W: Write>(
     for (_, te) in &template.texts {
         text::write_text_element(writer, &te, &dic)?;
     }
+
+    for (_, se) in &template.svgs.clone().unwrap_or_default() {
+        let path = path.parent().unwrap().join(&se.path);
+        comment(writer, se.path.to_str().unwrap_or_default())?;
+        import::import_svg(writer, &path)?;
+    }
+
     let svg_end: XmlEvent = XmlEvent::end_element().into();
     writer.write(svg_end)?;
     Ok(())
@@ -87,5 +104,5 @@ fn main() -> Result<()> {
     let mut writer = EmitterConfig::new()
         .perform_indent(true)
         .create_writer(stdout);
-    write_svg(&mut writer, &template, &dic)
+    write_svg(&mut writer, &opt.template, &template, &dic)
 }
