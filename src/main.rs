@@ -34,7 +34,7 @@ impl CardTemplate {
 pub struct SvgElement {
     path: PathBuf,
     scale: f64,
-    pos: (usize, usize),
+    pos: (f64, f64),
 }
 
 #[derive(Clone, Deserialize, Debug)]
