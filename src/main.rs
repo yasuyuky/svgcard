@@ -88,7 +88,7 @@ fn write_svg<W: Write>(
     for (_, se) in &template.svgs.clone().unwrap_or_default() {
         let path = path.parent().unwrap().join(&se.path);
         comment(writer, se.path.to_str().unwrap_or_default())?;
-        import::import_svg(writer, &path, se.scale)?;
+        import::import_svg(writer, &path, se.pos, se.scale)?;
     }
 
     let svg_end: XmlEvent = XmlEvent::end_element().into();

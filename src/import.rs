@@ -4,7 +4,12 @@ use std::io::{BufReader, Write};
 use std::path::Path;
 use xml::{reader as r, writer as w};
 
-pub fn import_svg<W: Write>(writer: &mut w::EventWriter<W>, path: &Path, scale: f64) -> Result<()> {
+pub fn import_svg<W: Write>(
+    writer: &mut w::EventWriter<W>,
+    path: &Path,
+    pos: (f64, f64),
+    scale: f64,
+) -> Result<()> {
     let file = File::open(path).unwrap();
     let file = BufReader::new(file);
 
@@ -17,7 +22,7 @@ pub fn import_svg<W: Write>(writer: &mut w::EventWriter<W>, path: &Path, scale: 
             Ok(r::XmlEvent::StartElement { name, .. }) => {
                 if name.local_name == "svg" {
                     inside_svg = true;
-                    let tr = transform(scale);
+                    let tr = transform(pos, scale);
                     let g: w::XmlEvent = w::XmlEvent::start_element("g")
                         .attr("transform", &tr)
                         .into();
@@ -39,6 +44,6 @@ pub fn import_svg<W: Write>(writer: &mut w::EventWriter<W>, path: &Path, scale: 
     Ok(())
 }
 
-fn transform(scale: f64) -> String {
-    format!("scale({})", scale)
+fn transform(pos: (f64, f64), scale: f64) -> String {
+    format!("translate({} {}) scale({}) ", pos.0, pos.1, scale)
 }
