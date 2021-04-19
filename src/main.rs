@@ -49,6 +49,8 @@ struct Dimension {
 struct Opt {
     template: PathBuf,
     values: PathBuf,
+    #[structopt(short = "s", long = "style", default_value = ".svgcard.css")]
+    style: PathBuf,
 }
 
 fn load_values(path: &Path) -> Result<HashMap<String, String>> {
