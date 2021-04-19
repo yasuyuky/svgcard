@@ -1,6 +1,7 @@
 use crate::CardTemplate;
 use anyhow::Result;
-use std::io::Write;
+use std::io::{Read, Write};
+use std::path::Path;
 use xml::writer::{EventWriter, XmlEvent};
 
 pub fn write_style<W: Write>(writer: &mut EventWriter<W>, template: &CardTemplate) -> Result<()> {
@@ -22,6 +23,19 @@ pub fn write_style<W: Write>(writer: &mut EventWriter<W>, template: &CardTemplat
         let cs: XmlEvent = XmlEvent::characters(&s).into();
         writer.write(cs)?;
     }
+    let end: XmlEvent = XmlEvent::end_element().into();
+    writer.write(end)?;
+    Ok(())
+}
+
+pub fn import_style<W: Write>(writer: &mut EventWriter<W>, path: &Path) -> Result<()> {
+    let start: XmlEvent = XmlEvent::start_element("style").into();
+    writer.write(start)?;
+    let mut f = std::fs::File::open(path)?;
+    let mut buf = String::new();
+    f.read_to_string(&mut buf)?;
+    let cs: XmlEvent = XmlEvent::characters(&buf).into();
+    writer.write(cs)?;
     let end: XmlEvent = XmlEvent::end_element().into();
     writer.write(end)?;
     Ok(())
