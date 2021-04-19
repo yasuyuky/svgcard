@@ -71,6 +71,7 @@ fn write_svg<W: Write>(
     path: &Path,
     template: &CardTemplate,
     dic: &HashMap<String, String>,
+    style: &Path,
 ) -> Result<()> {
     let dim = template.dimension.clone();
     let (ws, hs) = (format!("{}mm", dim.width), format!("{}mm", dim.height));
@@ -82,7 +83,11 @@ fn write_svg<W: Write>(
         .attr("height", &hs)
         .into();
     writer.write(svg_start)?;
-    style::write_style(writer, template)?;
+    if style.exists() {
+        style::import_style(writer, style)?
+    } else {
+        style::write_style(writer, template)?;
+    }
     for (_, te) in &template.texts {
         text::write_text_element(writer, &te, &dic)?;
     }
@@ -106,5 +111,5 @@ fn main() -> Result<()> {
     let mut writer = EmitterConfig::new()
         .perform_indent(true)
         .create_writer(stdout);
-    write_svg(&mut writer, &opt.template, &template, &dic)
+    write_svg(&mut writer, &opt.template, &template, &dic, &opt.style)
 }
