@@ -1,5 +1,4 @@
 use anyhow::Result;
-use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -9,40 +8,10 @@ use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
 
 mod import;
 mod style;
+mod template;
 mod text;
 
-#[derive(Deserialize, Debug)]
-pub struct CardTemplate {
-    dimension: Dimension,
-    fontset: HashMap<String, Vec<String>>,
-    fontweight: Option<HashMap<String, usize>>,
-    imports: Option<Vec<String>>,
-    texts: HashMap<String, text::TextElement>,
-    svgs: Option<HashMap<String, SvgElement>>,
-}
-
-impl CardTemplate {
-    pub fn from_path(path: &Path) -> Result<Self> {
-        let mut file = File::open(path)?;
-        let mut buf = String::new();
-        file.read_to_string(&mut buf)?;
-        Ok(toml::from_str::<CardTemplate>(&buf)?)
-    }
-}
-
-#[derive(Clone, Deserialize, Debug)]
-pub struct SvgElement {
-    path: PathBuf,
-    scale: f64,
-    pos: (f64, f64),
-}
-
-#[derive(Clone, Deserialize, Debug)]
-struct Dimension {
-    width: usize,
-    height: usize,
-    bezel: usize,
-}
+use template::CardTemplate;
 
 #[derive(Debug, StructOpt)]
 #[structopt(rename_all = "kebab-case")]
