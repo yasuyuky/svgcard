@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 xml-rs = "0.8.3"
 toml = "0.5.8"
-serde = { version = "1.0.125", features = ["derive"] }
+serde = { version = "1.0.126", features = ["derive"] }
 structopt = "0.3.21"
 anyhow = "1.0.40"
 regex = "1.5.4"
