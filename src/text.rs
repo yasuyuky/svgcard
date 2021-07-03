@@ -30,11 +30,12 @@ enum Align {
 }
 
 fn write_text_start<W: Write>(
-    w: &mut EventWriter<W>,
+    writer: &mut EventWriter<W>,
     class: &str,
     x: usize,
     y: usize,
     fontsize: f64,
+    align: &Option<Align>,
 ) -> Result<()> {
     let (x, y) = (format!("{}", x), format!("{}", y));
     let fontsize = format!("{}", fontsize);
@@ -43,13 +44,20 @@ fn write_text_start<W: Write>(
         .attr("x", &x)
         .attr("y", &y)
         .attr("font-size", &fontsize)
+        .attr(
+            "text-anchor",
+            match align {
+                Some(Align::Right) => "end",
+                _ => "start",
+            },
+        )
         .into();
-    w.write(start)?;
+    writer.write(start)?;
     Ok(())
 }
 
 fn write_text_characters<W: Write>(
-    w: &mut EventWriter<W>,
+    writer: &mut EventWriter<W>,
     text: &str,
     dic: &HashMap<String, String>,
 ) -> Result<()> {
@@ -61,33 +69,33 @@ fn write_text_characters<W: Write>(
         t = t.replace(&format!("{{{}}}", k), &v);
     }
     let cs: XmlEvent = XmlEvent::characters(&t).into();
-    w.write(cs)?;
+    writer.write(cs)?;
     Ok(())
 }
 
-fn write_text_end<W: Write>(w: &mut EventWriter<W>) -> Result<()> {
+fn write_text_end<W: Write>(writer: &mut EventWriter<W>) -> Result<()> {
     let end: XmlEvent = XmlEvent::end_element().into();
-    w.write(end)?;
+    writer.write(end)?;
     Ok(())
 }
 
 pub fn write_text_element<W: Write>(
-    w: &mut EventWriter<W>,
+    writer: &mut EventWriter<W>,
     te: &TextElement,
     dic: &HashMap<String, String>,
 ) -> Result<()> {
     let (x, mut y) = te.pos;
-    write_text_start(w, &te.fontset, x, y, te.fontsize)?;
+    write_text_start(writer, &te.fontset, x, y, te.fontsize, &te.align)?;
     match &te.text {
         Text::Multi(vecstr) => {
             for text in vecstr {
-                write_text_characters(w, text, dic)?;
-                write_text_end(w)?;
+                write_text_characters(writer, text, dic)?;
+                write_text_end(writer)?;
                 y = y + te.fontsize.ceil() as usize;
-                write_text_start(w, &te.fontset, x, y, te.fontsize)?;
+                write_text_start(writer, &te.fontset, x, y, te.fontsize, &te.align)?;
             }
         }
-        Text::Single(text) => write_text_characters(w, text, dic)?,
+        Text::Single(text) => write_text_characters(writer, text, dic)?,
     }
-    write_text_end(w)
+    write_text_end(writer)
 }
