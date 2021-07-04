@@ -13,6 +13,7 @@ pub struct TextElement {
     align: Option<Align>,
     pos: (usize, usize),
     space: Option<(f64, f64)>,
+    column: Option<usize>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -56,18 +57,23 @@ fn write_text_start<W: Write>(
     Ok(())
 }
 
-fn write_text_characters<W: Write>(
-    writer: &mut EventWriter<W>,
-    text: &str,
-    dic: &HashMap<String, String>,
-) -> Result<()> {
+fn filltext(text: &str, dic: &HashMap<String, String>) -> String {
     let mut t = text.to_owned();
-    let re = Regex::new(r"\{(\w+)\}")?;
+    let re = Regex::new(r"\{(\w+)\}").expect("compile regex for placeholder");
     for cap in re.captures_iter(text) {
         let k = cap[1].to_owned();
         let v = dic.get(&k).map(String::from).unwrap_or_default();
         t = t.replace(&format!("{{{}}}", k), &v);
     }
+    t
+}
+
+fn write_text_characters<W: Write>(
+    writer: &mut EventWriter<W>,
+    text: &str,
+    dic: &HashMap<String, String>,
+) -> Result<()> {
+    let t = filltext(text, dic);
     let cs: XmlEvent = XmlEvent::characters(&t).into();
     writer.write(cs)?;
     Ok(())
@@ -79,20 +85,36 @@ fn write_text_end<W: Write>(writer: &mut EventWriter<W>) -> Result<()> {
     Ok(())
 }
 
+fn fontsize(text: &Text, dic: &HashMap<String, String>, col: &Option<usize>, fontsize: f64) -> f64 {
+    let len = match text {
+        Text::Multi(ss) => ss
+            .iter()
+            .map(|s| filltext(s, dic).chars().count())
+            .max()
+            .unwrap_or(1),
+        Text::Single(s) => filltext(s, dic).chars().count(),
+    };
+    match col {
+        Some(col) => fontsize * (*col as f64 / len as f64).min(1.0),
+        _ => fontsize,
+    }
+}
+
 pub fn write_text_element<W: Write>(
     writer: &mut EventWriter<W>,
     te: &TextElement,
     dic: &HashMap<String, String>,
 ) -> Result<()> {
     let (x, mut y) = te.pos;
-    write_text_start(writer, &te.fontset, x, y, te.fontsize, &te.align)?;
+    let fontsize = fontsize(&te.text, &dic, &te.column, te.fontsize);
+    write_text_start(writer, &te.fontset, x, y, fontsize, &te.align)?;
     match &te.text {
         Text::Multi(vecstr) => {
             for text in vecstr {
                 write_text_characters(writer, text, dic)?;
                 write_text_end(writer)?;
                 y = y + te.fontsize.ceil() as usize;
-                write_text_start(writer, &te.fontset, x, y, te.fontsize, &te.align)?;
+                write_text_start(writer, &te.fontset, x, y, fontsize, &te.align)?;
             }
         }
         Text::Single(text) => write_text_characters(writer, text, dic)?,
