@@ -57,18 +57,23 @@ fn write_text_start<W: Write>(
     Ok(())
 }
 
-fn write_text_characters<W: Write>(
-    writer: &mut EventWriter<W>,
-    text: &str,
-    dic: &HashMap<String, String>,
-) -> Result<()> {
+fn filltext(text: &str, dic: &HashMap<String, String>) -> String {
     let mut t = text.to_owned();
-    let re = Regex::new(r"\{(\w+)\}")?;
+    let re = Regex::new(r"\{(\w+)\}").expect("compile regex for placeholder");
     for cap in re.captures_iter(text) {
         let k = cap[1].to_owned();
         let v = dic.get(&k).map(String::from).unwrap_or_default();
         t = t.replace(&format!("{{{}}}", k), &v);
     }
+    t
+}
+
+fn write_text_characters<W: Write>(
+    writer: &mut EventWriter<W>,
+    text: &str,
+    dic: &HashMap<String, String>,
+) -> Result<()> {
+    let t = filltext(text, dic);
     let cs: XmlEvent = XmlEvent::characters(&t).into();
     writer.write(cs)?;
     Ok(())
