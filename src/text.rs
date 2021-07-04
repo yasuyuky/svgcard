@@ -102,14 +102,15 @@ pub fn write_text_element<W: Write>(
     dic: &HashMap<String, String>,
 ) -> Result<()> {
     let (x, mut y) = te.pos;
-    write_text_start(writer, &te.fontset, x, y, te.fontsize, &te.align)?;
+    let fontsize = fontsize(&te.text, &dic, &te.column, te.fontsize);
+    write_text_start(writer, &te.fontset, x, y, fontsize, &te.align)?;
     match &te.text {
         Text::Multi(vecstr) => {
             for text in vecstr {
                 write_text_characters(writer, text, dic)?;
                 write_text_end(writer)?;
                 y = y + te.fontsize.ceil() as usize;
-                write_text_start(writer, &te.fontset, x, y, te.fontsize, &te.align)?;
+                write_text_start(writer, &te.fontset, x, y, fontsize, &te.align)?;
             }
         }
         Text::Single(text) => write_text_characters(writer, text, dic)?,
