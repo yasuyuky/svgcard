@@ -87,8 +87,12 @@ fn write_text_end<W: Write>(writer: &mut EventWriter<W>) -> Result<()> {
 
 fn fontsize(text: &Text, dic: &HashMap<String, String>, col: &Option<usize>, fontsize: f64) -> f64 {
     let len = match text {
-        Text::Multi(ss) => ss.iter().map(|s| filltext(s, dic).len()).max().unwrap_or(1),
-        Text::Single(s) => filltext(s, dic).len(),
+        Text::Multi(ss) => ss
+            .iter()
+            .map(|s| filltext(s, dic).chars().count())
+            .max()
+            .unwrap_or(1),
+        Text::Single(s) => filltext(s, dic).chars().count(),
     };
     match col {
         Some(col) => fontsize * (*col as f64 / len as f64).min(1.0),
