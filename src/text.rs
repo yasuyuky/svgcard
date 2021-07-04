@@ -13,6 +13,7 @@ pub struct TextElement {
     align: Option<Align>,
     pos: (usize, usize),
     space: Option<(f64, f64)>,
+    column: Option<usize>,
 }
 
 #[derive(Deserialize, Debug)]
