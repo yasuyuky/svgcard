@@ -43,7 +43,9 @@ fn write_svg<W: Write>(
     style: &Path,
 ) -> Result<()> {
     let dim = template.dimension.clone();
-    let (ws, hs) = (format!("{}mm", dim.width), format!("{}mm", dim.height));
+    let unit = dim.unit.clone();
+    let ws = format!("{}{}", dim.width, unit);
+    let hs = format!("{}{}", dim.height, unit);
     let vb = format!("0 0 {} {}", dim.width, dim.height);
     let svg_start: XmlEvent = XmlEvent::start_element("svg")
         .default_ns("http://www.w3.org/2000/svg")
