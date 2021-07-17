@@ -36,6 +36,7 @@ fn write_text_start<W: Write>(
     x: usize,
     y: usize,
     fontsize: f64,
+    letterspacing: &str,
     align: &Option<Align>,
 ) -> Result<()> {
     let (x, y) = (format!("{}", x), format!("{}", y));
@@ -45,6 +46,7 @@ fn write_text_start<W: Write>(
         .attr("x", &x)
         .attr("y", &y)
         .attr("font-size", &fontsize)
+        .attr("letter-spacing", letterspacing)
         .attr(
             "text-anchor",
             match align {
@@ -107,14 +109,16 @@ pub fn write_text_element<W: Write>(
 ) -> Result<()> {
     let (x, mut y) = te.pos;
     let fontsize = fontsize(&te.text, &dic, &te.column, te.fontsize);
-    write_text_start(writer, &te.fontset, x, y, fontsize, &te.align)?;
+    let (xspacing, yspacing) = te.space.unwrap_or_default();
+    let lettersp = format!("{}", xspacing);
+    write_text_start(writer, &te.fontset, x, y, fontsize, &lettersp, &te.align)?;
     match &te.text {
         Text::Multi(vecstr) => {
             for text in vecstr {
                 write_text_characters(writer, text, dic)?;
                 write_text_end(writer)?;
-                y = y + te.fontsize.ceil() as usize;
-                write_text_start(writer, &te.fontset, x, y, fontsize, &te.align)?;
+                y = (y as f64 + te.fontsize + yspacing).round() as usize;
+                write_text_start(writer, &te.fontset, x, y, fontsize, &lettersp, &te.align)?;
             }
         }
         Text::Single(text) => write_text_characters(writer, text, dic)?,
