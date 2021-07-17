@@ -37,4 +37,10 @@ pub struct Dimension {
     pub width: usize,
     pub height: usize,
     pub bezel: usize,
+    #[serde(default = "default_unit")]
+    pub unit: String,
+}
+
+fn default_unit() -> String {
+    "mm".to_string()
 }
