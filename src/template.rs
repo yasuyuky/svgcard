@@ -36,7 +36,7 @@ pub struct SvgElement {
 pub struct Dimension {
     pub width: usize,
     pub height: usize,
-    pub bezel: usize,
+    pub bezel: (isize, isize),
     #[serde(default = "default_unit")]
     pub unit: String,
 }
