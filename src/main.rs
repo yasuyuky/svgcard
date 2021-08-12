@@ -43,11 +43,11 @@ fn write_svg<W: Write>(
     style: &Path,
 ) -> Result<()> {
     let dim = template.dimension.clone();
-    let bzl = dim.bezel.clone();
+    let off = dim.offset.clone();
     let unit = dim.unit.clone();
     let ws = format!("{}{}", dim.width, unit);
     let hs = format!("{}{}", dim.height, unit);
-    let vb = format!("{} {} {} {}", -1 * bzl.0, -1 * bzl.1, dim.width, dim.height);
+    let vb = format!("{} {} {} {}", -1 * off.0, -1 * off.1, dim.width, dim.height);
     let svg_start: XmlEvent = XmlEvent::start_element("svg")
         .default_ns("http://www.w3.org/2000/svg")
         .attr("viewBox", &vb)

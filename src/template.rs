@@ -36,13 +36,13 @@ pub struct SvgElement {
 pub struct Dimension {
     pub width: usize,
     pub height: usize,
-    #[serde(default = "default_bezel")]
-    pub bezel: (isize, isize),
+    #[serde(default = "default_offset")]
+    pub offset: (isize, isize),
     #[serde(default = "default_unit")]
     pub unit: String,
 }
 
-fn default_bezel() -> (isize, isize) {
+fn default_offset() -> (isize, isize) {
     (0, 0)
 }
 
