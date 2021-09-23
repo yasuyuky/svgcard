@@ -61,11 +61,11 @@ fn write_svg<W: Write>(
     } else {
         style::write_style(writer, template)?;
     }
-    for (_, te) in &template.texts {
+    for te in template.texts.values() {
         text::write_text_element(writer, te, dic)?;
     }
 
-    for (_, se) in &template.svgs.clone().unwrap_or_default() {
+    for se in template.svgs.clone().unwrap_or_default().values() {
         let path = path.parent().unwrap().join(&se.path);
         comment(writer, se.path.to_str().unwrap_or_default())?;
         import::import_svg(writer, &path, se.pos, se.scale)?;
