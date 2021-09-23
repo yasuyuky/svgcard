@@ -62,7 +62,7 @@ fn write_svg<W: Write>(
         style::write_style(writer, template)?;
     }
     for (_, te) in &template.texts {
-        text::write_text_element(writer, &te, &dic)?;
+        text::write_text_element(writer, te, dic)?;
     }
 
     for (_, se) in &template.svgs.clone().unwrap_or_default() {
