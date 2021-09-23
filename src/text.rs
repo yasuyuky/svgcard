@@ -76,7 +76,7 @@ fn write_text_characters<W: Write>(
     dic: &HashMap<String, String>,
 ) -> Result<()> {
     let t = filltext(text, dic);
-    let cs: XmlEvent = XmlEvent::characters(&t).into();
+    let cs: XmlEvent = XmlEvent::characters(&t);
     writer.write(cs)?;
     Ok(())
 }
