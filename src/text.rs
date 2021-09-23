@@ -76,7 +76,7 @@ fn write_text_characters<W: Write>(
     dic: &HashMap<String, String>,
 ) -> Result<()> {
     let t = filltext(text, dic);
-    let cs: XmlEvent = XmlEvent::characters(&t).into();
+    let cs: XmlEvent = XmlEvent::characters(&t);
     writer.write(cs)?;
     Ok(())
 }
@@ -108,7 +108,7 @@ pub fn write_text_element<W: Write>(
     dic: &HashMap<String, String>,
 ) -> Result<()> {
     let (x, mut y) = te.pos;
-    let fontsize = fontsize(&te.text, &dic, &te.column, te.fontsize);
+    let fontsize = fontsize(&te.text, dic, &te.column, te.fontsize);
     let (xspacing, yspacing) = te.space.unwrap_or_default();
     let lettersp = format!("{}", xspacing);
     write_text_start(writer, &te.fontset, x, y, fontsize, &lettersp, &te.align)?;
