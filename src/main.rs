@@ -2,6 +2,7 @@ use anyhow::Result;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Write};
+use std::ops::Neg;
 use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
@@ -43,11 +44,11 @@ fn write_svg<W: Write>(
     style: &Path,
 ) -> Result<()> {
     let dim = template.dimension.clone();
-    let off = dim.offset.clone();
+    let (xoffset, yoffset) = (dim.offset.0.neg(), dim.offset.1.neg());
     let unit = dim.unit.clone();
     let ws = format!("{}{}", dim.width, unit);
     let hs = format!("{}{}", dim.height, unit);
-    let vb = format!("{} {} {} {}", -1 * off.0, -1 * off.1, dim.width, dim.height);
+    let vb = format!("{} {} {} {}", xoffset, yoffset, dim.width, dim.height);
     let svg_start: XmlEvent = XmlEvent::start_element("svg")
         .default_ns("http://www.w3.org/2000/svg")
         .attr("viewBox", &vb)
