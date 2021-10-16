@@ -97,17 +97,15 @@ fn write_text_end<W: Write>(writer: &mut EventWriter<W>) -> Result<()> {
 }
 
 fn fontsize(text: &Text, dic: &HashMap<String, Text>, col: &Option<usize>, fontsize: f64) -> f64 {
-    let len = match text {
-        Text::Multi(ss) => ss
-            .iter()
-            .map(|s| maxlen(&filltext(s, dic)))
-            .max()
-            .unwrap_or(1),
-        Text::Single(s) => maxlen(&filltext(s, dic)),
+    let (vecstr, tl) = match text {
+        Text::Multi(ss) => (ss.iter().flat_map(|s| filltext(s, dic)).collect(), ss.len()),
+        Text::Single(s) => (filltext(s, dic), 1),
     };
+    let len = maxlen(&vecstr);
+    let mag = 1.0 / vecstr.len() as f64 * tl as f64;
     match col {
-        Some(col) => fontsize * (*col as f64 / len as f64).min(1.0),
-        _ => fontsize,
+        Some(col) => fontsize * (*col as f64 / len as f64).min(mag),
+        _ => fontsize * mag,
     }
 }
 
