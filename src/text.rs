@@ -125,23 +125,15 @@ pub fn write_text_element<W: Write>(
     let (xspacing, yspacing) = te.space.unwrap_or_default();
     let lettersp = format!("{}", xspacing);
     write_text_start(writer, &te.fontset, x, y, fontsize, &lettersp, &te.align)?;
-    match &te.text {
-        Text::Multi(vecstr) => {
-            for t in vecstr.iter().flat_map(|s| filltext(s, &dic)) {
-                write_text_characters(writer, &t)?;
-                write_text_end(writer)?;
-                y = (y as f64 + te.fontsize + yspacing).round() as usize;
-                write_text_start(writer, &te.fontset, x, y, fontsize, &lettersp, &te.align)?;
-            }
-        }
-        Text::Single(text) => {
-            for t in filltext(text, dic) {
-                write_text_characters(writer, &t)?;
-                write_text_end(writer)?;
-                y = (y as f64 + te.fontsize + yspacing).round() as usize;
-                write_text_start(writer, &te.fontset, x, y, fontsize, &lettersp, &te.align)?;
-            }
-        }
+    let texts = match &te.text {
+        Text::Multi(texts) => texts.iter().flat_map(|text| filltext(text, &dic)).collect(),
+        Text::Single(text) => filltext(text, dic),
+    };
+    for t in texts {
+        write_text_characters(writer, &t)?;
+        write_text_end(writer)?;
+        y = (y as f64 + te.fontsize + yspacing).round() as usize;
+        write_text_start(writer, &te.fontset, x, y, fontsize, &lettersp, &te.align)?;
     }
     write_text_end(writer)
 }
