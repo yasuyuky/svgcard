@@ -130,7 +130,7 @@ pub fn write_text_element<W: Write>(
     for t in texts {
         write_text_characters(writer, &t)?;
         write_text_end(writer)?;
-        y = (y as f64 + te.fontsize + yspacing).round() as usize;
+        y = (y as f64 + fontsize + yspacing).round() as usize;
         write_text_start(writer, &te.fontset, x, y, fontsize, &lettersp, &te.align)?;
     }
     write_text_end(writer)
