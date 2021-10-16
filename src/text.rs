@@ -108,6 +108,10 @@ fn fontsize(text: &Text, dic: &HashMap<String, String>, col: &Option<usize>, fon
     }
 }
 
+fn maxlen(ss: &[String]) -> usize {
+    ss.iter().map(|t| t.chars().count()).max().unwrap_or(1)
+}
+
 pub fn write_text_element<W: Write>(
     writer: &mut EventWriter<W>,
     te: &TextElement,
