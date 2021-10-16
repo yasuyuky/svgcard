@@ -87,6 +87,12 @@ fn write_text_characters<W: Write>(
     Ok(())
 }
 
+fn replace_vecstr(k: &str, s: &str, t: &[String]) -> Vec<String> {
+    t.iter()
+        .map(|u| u.replace(&format!("{{{}}}", k), s))
+        .collect()
+}
+
 fn write_text_end<W: Write>(writer: &mut EventWriter<W>) -> Result<()> {
     let end: XmlEvent = XmlEvent::end_element().into();
     writer.write(end)?;
