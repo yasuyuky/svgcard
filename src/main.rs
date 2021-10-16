@@ -13,6 +13,7 @@ mod template;
 mod text;
 
 use template::CardTemplate;
+use text::Text;
 
 #[derive(Debug, StructOpt)]
 #[structopt(rename_all = "kebab-case")]
@@ -23,11 +24,11 @@ struct Opt {
     style: PathBuf,
 }
 
-fn load_values(path: &Path) -> Result<HashMap<String, String>> {
+fn load_values(path: &Path) -> Result<HashMap<String, Text>> {
     let mut file = File::open(path)?;
     let mut buf = String::new();
     file.read_to_string(&mut buf)?;
-    Ok(toml::from_str::<HashMap<String, String>>(&buf)?)
+    Ok(toml::from_str::<HashMap<String, Text>>(&buf)?)
 }
 
 pub fn comment<W: Write>(writer: &mut EventWriter<W>, s: &str) -> Result<()> {
@@ -40,7 +41,7 @@ fn write_svg<W: Write>(
     writer: &mut EventWriter<W>,
     path: &Path,
     template: &CardTemplate,
-    dic: &HashMap<String, String>,
+    dic: &HashMap<String, Text>,
     style: &Path,
 ) -> Result<()> {
     let dim = template.dimension.clone();

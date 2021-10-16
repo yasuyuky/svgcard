@@ -65,24 +65,21 @@ fn write_text_start<W: Write>(
     Ok(())
 }
 
-fn filltext(text: &str, dic: &HashMap<String, String>) -> String {
-    let mut t = text.to_owned();
+fn filltext(text: &str, dic: &HashMap<String, Text>) -> Vec<String> {
+    let mut t = vec![text.to_owned()];
     let re = Regex::new(r"\{(\w+)\}").expect("compile regex for placeholder");
     for cap in re.captures_iter(text) {
         let k = cap[1].to_owned();
-        let v = dic.get(&k).map(String::from).unwrap_or_default();
-        t = t.replace(&format!("{{{}}}", k), &v);
+        t = match dic.get(&k).unwrap_or(&Text::single("")) {
+            Text::Single(s) => replace_vecstr(&k, s, &t),
+            Text::Multi(ss) => ss.iter().flat_map(|s| replace_vecstr(&k, s, &t)).collect(),
+        };
     }
     t
 }
 
-fn write_text_characters<W: Write>(
-    writer: &mut EventWriter<W>,
-    text: &str,
-    dic: &HashMap<String, String>,
-) -> Result<()> {
-    let t = filltext(text, dic);
-    let cs: XmlEvent = XmlEvent::characters(&t);
+fn write_text_characters<W: Write>(writer: &mut EventWriter<W>, text: &str) -> Result<()> {
+    let cs: XmlEvent = XmlEvent::characters(&text);
     writer.write(cs)?;
     Ok(())
 }
@@ -99,14 +96,14 @@ fn write_text_end<W: Write>(writer: &mut EventWriter<W>) -> Result<()> {
     Ok(())
 }
 
-fn fontsize(text: &Text, dic: &HashMap<String, String>, col: &Option<usize>, fontsize: f64) -> f64 {
+fn fontsize(text: &Text, dic: &HashMap<String, Text>, col: &Option<usize>, fontsize: f64) -> f64 {
     let len = match text {
         Text::Multi(ss) => ss
             .iter()
-            .map(|s| filltext(s, dic).chars().count())
+            .map(|s| maxlen(&filltext(s, dic)))
             .max()
             .unwrap_or(1),
-        Text::Single(s) => filltext(s, dic).chars().count(),
+        Text::Single(s) => maxlen(&filltext(s, dic)),
     };
     match col {
         Some(col) => fontsize * (*col as f64 / len as f64).min(1.0),
@@ -121,7 +118,7 @@ fn maxlen(ss: &[String]) -> usize {
 pub fn write_text_element<W: Write>(
     writer: &mut EventWriter<W>,
     te: &TextElement,
-    dic: &HashMap<String, String>,
+    dic: &HashMap<String, Text>,
 ) -> Result<()> {
     let (x, mut y) = te.pos;
     let fontsize = fontsize(&te.text, dic, &te.column, te.fontsize);
@@ -130,14 +127,21 @@ pub fn write_text_element<W: Write>(
     write_text_start(writer, &te.fontset, x, y, fontsize, &lettersp, &te.align)?;
     match &te.text {
         Text::Multi(vecstr) => {
-            for text in vecstr {
-                write_text_characters(writer, text, dic)?;
+            for t in vecstr.iter().flat_map(|s| filltext(s, &dic)) {
+                write_text_characters(writer, &t)?;
                 write_text_end(writer)?;
                 y = (y as f64 + te.fontsize + yspacing).round() as usize;
                 write_text_start(writer, &te.fontset, x, y, fontsize, &lettersp, &te.align)?;
             }
         }
-        Text::Single(text) => write_text_characters(writer, text, dic)?,
+        Text::Single(text) => {
+            for t in filltext(text, dic) {
+                write_text_characters(writer, &t)?;
+                write_text_end(writer)?;
+                y = (y as f64 + te.fontsize + yspacing).round() as usize;
+                write_text_start(writer, &te.fontset, x, y, fontsize, &lettersp, &te.align)?;
+            }
+        }
     }
     write_text_end(writer)
 }
