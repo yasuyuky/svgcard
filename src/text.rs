@@ -23,6 +23,12 @@ pub enum Text {
     Single(String),
 }
 
+impl Text {
+    pub fn single(s: &str) -> Self {
+        Self::Single(s.to_owned())
+    }
+}
+
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "lowercase")]
 enum Align {
