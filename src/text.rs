@@ -18,7 +18,7 @@ pub struct TextElement {
 
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
-enum Text {
+pub enum Text {
     Multi(Vec<String>),
     Single(String),
 }
