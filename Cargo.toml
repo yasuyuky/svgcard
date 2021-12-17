@@ -9,7 +9,7 @@ edition = "2021"
 [dependencies]
 xml-rs = "0.8.4"
 toml = "0.5.8"
-serde = { version = "1.0.131", features = ["derive"] }
+serde = { version = "1.0.132", features = ["derive"] }
 structopt = "0.3.25"
 anyhow = "1.0.51"
 regex = "1.5.4"
