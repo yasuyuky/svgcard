@@ -40,6 +40,8 @@ pub struct Dimension {
     pub offset: (isize, isize),
     #[serde(default = "default_unit")]
     pub unit: String,
+    #[serde(default = "default_scale")]
+    pub scale: usize,
 }
 
 fn default_offset() -> (isize, isize) {
@@ -48,4 +50,8 @@ fn default_offset() -> (isize, isize) {
 
 fn default_unit() -> String {
     "mm".to_string()
+}
+
+fn default_scale() -> usize {
+    10
 }
