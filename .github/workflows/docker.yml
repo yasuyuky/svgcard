@@ -14,6 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
+      - name: Build binary
+        run: |
+          rustup update
+          rustup target add x86_64-unknown-linux-musl
+          cargo build --target x86_64-unknown-linux-musl --release
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
