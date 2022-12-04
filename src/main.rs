@@ -5,7 +5,6 @@ use std::fs::File;
 use std::io::{Read, Write};
 use std::ops::Neg;
 use std::path::{Path, PathBuf};
-use structopt::StructOpt;
 use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
 
 mod import;
