@@ -1,10 +1,10 @@
 use anyhow::Result;
+use clap::Parser;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::ops::Neg;
 use std::path::{Path, PathBuf};
-use structopt::StructOpt;
 use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
 
 mod import;
@@ -15,12 +15,12 @@ mod text;
 use template::CardTemplate;
 use text::Text;
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 #[structopt(rename_all = "kebab-case")]
 struct Opt {
     template: PathBuf,
     values: PathBuf,
-    #[structopt(short = "s", long = "style", default_value = ".svgcard.css")]
+    #[clap(short = 's', long = "style", default_value = ".svgcard.css")]
     style: PathBuf,
 }
 
@@ -79,7 +79,7 @@ fn write_svg<W: Write>(
 
 fn main() -> Result<()> {
     let stdout = std::io::stdout();
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
     let template = CardTemplate::from_path(&opt.template)?;
     let dic = load_values(&opt.values)?;
     let mut writer = EmitterConfig::new()
