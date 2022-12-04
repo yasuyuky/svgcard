@@ -21,7 +21,7 @@ use text::Text;
 struct Opt {
     template: PathBuf,
     values: PathBuf,
-    #[structopt(short = "s", long = "style", default_value = ".svgcard.css")]
+    #[structopt(short = 's', long = "style", default_value = ".svgcard.css")]
     style: PathBuf,
 }
 
