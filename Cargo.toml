@@ -13,3 +13,4 @@ serde = { version = "1.0.148", features = ["derive"] }
 structopt = "0.3.26"
 anyhow = "1.0.66"
 regex = "1.7.0"
+clap = { version = "4.0.29", features = ["derive"] }
