@@ -80,7 +80,7 @@ fn write_svg<W: Write>(
 
 fn main() -> Result<()> {
     let stdout = std::io::stdout();
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
     let template = CardTemplate::from_path(&opt.template)?;
     let dic = load_values(&opt.values)?;
     let mut writer = EmitterConfig::new()
