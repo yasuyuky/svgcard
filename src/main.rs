@@ -1,4 +1,5 @@
 use anyhow::Result;
+use clap::Parser;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -15,7 +16,7 @@ mod text;
 use template::CardTemplate;
 use text::Text;
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 #[structopt(rename_all = "kebab-case")]
 struct Opt {
     template: PathBuf,
