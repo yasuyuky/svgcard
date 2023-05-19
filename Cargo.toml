@@ -8,7 +8,7 @@ edition = "2021"
 
 [dependencies]
 xml-rs = "0.8.11"
-toml = "0.7.3"
+toml = "0.7.4"
 serde = { version = "1.0.163", features = ["derive"] }
 anyhow = "1.0.71"
 regex = "1.8.1"
