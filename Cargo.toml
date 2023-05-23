@@ -11,5 +11,5 @@ xml-rs = "0.8.11"
 toml = "0.7.4"
 serde = { version = "1.0.163", features = ["derive"] }
 anyhow = "1.0.71"
-regex = "1.8.1"
+regex = "1.8.2"
 clap = { version = "4.1.11", features = ["derive"] }
