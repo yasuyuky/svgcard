@@ -10,6 +10,6 @@ edition = "2021"
 xml-rs = "0.8.16"
 toml = "0.7.6"
 serde = { version = "1.0.183", features = ["derive"] }
-anyhow = "1.0.72"
+anyhow = "1.0.74"
 regex = "1.9.3"
 clap = { version = "4.3.21", features = ["derive"] }
