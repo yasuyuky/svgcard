@@ -20,7 +20,7 @@ jobs:
       - name: Build binary x64
         run: cargo build --target x86_64-unknown-linux-musl --release
       - name: Build binary arm64
-        run: cargo build --target aarch64-unknown-linux-musl --release
+        run: cargo build --target aarch64-unknown-linux-musl --release -- -C link-arg=-lgcc
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
