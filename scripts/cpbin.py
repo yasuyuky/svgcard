@@ -8,7 +8,7 @@ platforms = {
     "x86_64-unknown-linux-musl": "linux/amd64"
 }
 
-for triple, platform in platforms:
+for triple, platform in platforms.items():
     print(triple, platform)
     if os.path.isfile(f"target/{triple}/release/svgcard"):
         os.makedirs(f"output/{platform}", exist_ok=True)
