@@ -1,5 +1,5 @@
 FROM scratch
-ARG TARGET_ARCH
-COPY target/${TARGET_ARCH}-unknown-linux-musl/release/svgcard /
+ARG TARGETPLATFORM
+COPY output/${TARGETPLATFORM}/svgcard /
 USER 1000
 ENTRYPOINT ["/svgcard"]
