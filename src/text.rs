@@ -79,7 +79,7 @@ fn filltext(text: &str, dic: &HashMap<String, Text>) -> Vec<String> {
 }
 
 fn write_text_characters<W: Write>(writer: &mut EventWriter<W>, text: &str) -> Result<()> {
-    let cs: XmlEvent = XmlEvent::characters(&text);
+    let cs: XmlEvent = XmlEvent::characters(text);
     writer.write(cs)?;
     Ok(())
 }
