@@ -79,7 +79,7 @@ fn filltext(text: &str, dic: &HashMap<String, Text>) -> Vec<String> {
 }
 
 fn write_text_characters<W: Write>(writer: &mut EventWriter<W>, text: &str) -> Result<()> {
-    let cs: XmlEvent = XmlEvent::characters(&text);
+    let cs: XmlEvent = XmlEvent::characters(text);
     writer.write(cs)?;
     Ok(())
 }
@@ -124,7 +124,7 @@ pub fn write_text_element<W: Write>(
     let lettersp = format!("{}", xspacing);
     write_text_start(writer, &te.fontset, x, y, fontsize, &lettersp, &te.align)?;
     let texts = match &te.text {
-        Text::Multi(texts) => texts.iter().flat_map(|text| filltext(text, &dic)).collect(),
+        Text::Multi(texts) => texts.iter().flat_map(|text| filltext(text, dic)).collect(),
         Text::Single(text) => filltext(text, dic),
     };
     for t in texts {
