@@ -32,6 +32,7 @@ pub struct SvgElement {
     pub pos: (f64, f64),
 }
 
+#[allow(unused)]
 #[derive(Clone, Deserialize, Debug)]
 pub struct Dimension {
     pub width: usize,
